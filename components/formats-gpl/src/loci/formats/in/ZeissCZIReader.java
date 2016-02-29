@@ -71,6 +71,8 @@ import ome.units.quantity.Temperature;
 import ome.units.quantity.Time;
 import ome.units.UNITS;
 
+import ome.jxr.*;
+
 import org.xml.sax.SAXException;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
@@ -2944,8 +2946,14 @@ public class ZeissCZIReader extends FormatReader {
           data = new LZWCodec().decompress(data, options);
           break;
         case JPEGXR:
-          throw new UnsupportedCompressionException(
-            "JPEG-XR not yet supported");
+          try {
+            JXRReader jxrreader = new JXRReader(s);
+            data = jxrreader.getDecompressedImage();
+          }
+          catch (JXRException e) {
+            throw new UnsupportedCompressionException(e);
+          }
+          break;
         case 104: // camera-specific packed pixels
           data = decode12BitCamera(data, options.maxBytes);
           // reverse column ordering
